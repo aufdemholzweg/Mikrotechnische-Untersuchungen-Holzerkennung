@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wer bin ich?</title>
+    <title>Welches Holz bin ich?</title>
     
     <!-- 1. Tailwind CSS für das Design laden -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -241,7 +241,8 @@
               </a>
 
               <div className="bg-orange-100 p-6 rounded-full mb-4 ring-8 ring-orange-50">
-                <TreePine size={64} className="text-orange-600" />
+                {/* LOGO GEÄNDERT: Mikroskop statt Baum */}
+                <Microscope size={64} className="text-orange-600" />
               </div>
               <h1 className="text-3xl font-black text-gray-800 tracking-tight">Pinpoint: Holzarten</h1>
               <p className="text-gray-600 max-w-xs text-lg leading-relaxed">
@@ -341,8 +342,8 @@
                 {gameState === 'playing' && (
                   <div className="bg-white/90 backdrop-blur-md border-b border-orange-100 p-3 flex justify-between items-center sticky top-0 z-20">
                     <div className="flex items-center space-x-2">
-                       {/* Home Button im Header während des Spiels (Optional, hier als extra Icon links) */}
-                       <a href={homeLink} className="bg-orange-50 p-2 rounded-lg text-orange-600 hover:bg-orange-100 transition-colors mr-1">
+                       {/* Home Button: Orange und konsistent */}
+                       <a href={homeLink} className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white shadow-md hover:scale-105 transition-transform border-2 border-white/20 mr-3 shrink-0">
                           <WoodFingerprint size={20} />
                        </a>
                        
