@@ -31,7 +31,7 @@
         .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 h-screen w-screen overflow-hidden">
+<body class="bg-slate-100 text-slate-900 h-[100dvh] w-screen overflow-hidden">
     
     <!-- Hier wird die App "eingehängt" -->
     <div id="root"></div>
@@ -298,7 +298,7 @@
               <div className="w-full h-full md:max-w-md md:h-[80vh] md:max-h-[720px] bg-white md:rounded-[2.5rem] md:shadow-2xl md:border-8 md:border-white overflow-hidden flex flex-col relative">
                 
                 {gameState === 'playing' && (
-                  <div className="bg-white/90 backdrop-blur-md border-b border-orange-100 p-4 flex justify-between items-center sticky top-0 z-20">
+                  <div className="bg-white/90 backdrop-blur-md border-b border-orange-100 p-3 flex justify-between items-center sticky top-0 z-20">
                     <div className="flex items-center space-x-2">
                        <div className="bg-orange-50 p-2 rounded-lg">
                           <Microscope className="w-5 h-5 text-orange-600" />
@@ -351,7 +351,7 @@
                               <div 
                                 key={index}
                                 className={`
-                                  p-3 rounded-xl border-l-4 transition-all duration-500 ease-out flex items-center
+                                  p-2 rounded-xl border-l-4 transition-all duration-500 ease-out flex items-center
                                   ${isRevealed 
                                     ? 'bg-white border-orange-500 shadow-sm opacity-100 translate-x-0' 
                                     : 'bg-slate-100 border-slate-300 opacity-40 translate-x-4 blur-[1px]'
@@ -373,7 +373,7 @@
                           /* ÄNDERUNG: mt-6 zu mt-2 reduziert */
                           <button 
                             onClick={handleRevealClue}
-                            className="mt-2 w-full text-sm font-bold text-red-600 bg-red-100 border-2 border-red-200 hover:bg-red-200 hover:border-red-300 px-4 py-3 rounded-xl transition-all flex justify-center items-center shadow-sm"
+                            className="mt-2 w-full text-sm font-bold text-red-600 bg-red-100 border-2 border-red-200 hover:bg-red-200 hover:border-red-300 px-4 py-2 rounded-xl transition-all flex justify-center items-center shadow-sm"
                           >
                             <Lightbulb className="w-4 h-4 mr-2" />
                             Tipp anzeigen (-40 Pkt)
@@ -382,7 +382,7 @@
                       </div>
 
                       {/* ÄNDERUNG: pt-2 zu pt-1 reduziert */}
-                      <div className="mt-auto pt-1 border-t border-slate-200 bg-slate-50/50 pb-6">
+                      <div className="mt-auto pt-1 border-t border-slate-200 bg-slate-50/50 pb-4">
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">Welches Holz ist es?</h3>
                         
                         <div className="grid grid-cols-2 gap-3">
@@ -404,7 +404,7 @@
                                 onClick={() => handleGuess(option)}
                                 disabled={roundStatus !== 'active'}
                                 className={`
-                                  relative p-3 rounded-xl border-2 font-bold text-sm transition-all duration-200 text-left min-h-[60px] flex items-center
+                                  relative p-2 rounded-xl border-2 font-bold text-sm transition-all duration-200 text-left min-h-[54px] flex items-center
                                   ${btnClass}
                                 `}
                               >
