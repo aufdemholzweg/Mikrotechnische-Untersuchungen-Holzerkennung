@@ -332,8 +332,8 @@
                   {gameState === 'playing' && (
                     <div className="p-4 flex flex-col min-h-full animate-fade-in w-full">
                       
-                      {/* ÄNDERUNG: mb-3 zu mb-1 reduziert */}
-                      <div className="flex-1 mb-1">
+                      {/* ÄNDERUNG: flex-1 entfernt, damit Hinweise oben bleiben */}
+                      <div className="mb-2">
                         <div className="flex justify-between items-end mb-4">
                           <h3 className="text-md font-bold text-slate-700 flex items-center">
                             <Search className="w-4 h-4 mr-2 text-orange-500" />
@@ -381,8 +381,8 @@
                         )}
                       </div>
 
-                      {/* ÄNDERUNG: pt-2 zu pt-1 reduziert */}
-                      <div className="mt-auto pt-1 border-t border-slate-200 bg-slate-50/50 pb-4">
+                      {/* ÄNDERUNG: mt-auto entfernt, pb-20 hinzugefügt für iPhone Home-Leiste */}
+                      <div className="pt-2 border-t border-slate-200 bg-slate-50/50 pb-20">
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">Welches Holz ist es?</h3>
                         
                         <div className="grid grid-cols-2 gap-3">
