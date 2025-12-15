@@ -1,0 +1,397 @@
+import React, { useState, useEffect } from 'react';
+import { Microscope, CheckCircle, XCircle, Trophy, Flame, Heart, ArrowRight, RefreshCw, Search, Lightbulb, Target, TreePine } from 'lucide-react';
+
+const GamifiedMicroscopyApp = () => {
+  // Game State
+  const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [lives, setLives] = useState(3);
+  const [gameState, setGameState] = useState('start'); // start, playing, gameover, completed
+  
+  // Pinpoint Specific State
+  const [revealedClues, setRevealedClues] = useState(1); // Start mit 1 Hinweis
+  const [roundStatus, setRoundStatus] = useState('active'); // active, success, failure
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [xpGained, setXpGained] = useState(0);
+
+  // Content: Nadelholzbestimmung basierend auf der Nutzertabelle
+  const challenges = [
+    {
+      id: 1,
+      category: "Nadelholz-Bestimmung",
+      answer: "Kiefer",
+      clues: [
+        "Ich besitze Harzkanäle.",
+        "Meine Epithelzellen sind dickwandig.",
+        "In den Kreuzungsfeldern zeige ich große Fenstertüpfel.",
+        "Meine Kantentracheiden sind gezahnt."
+      ],
+      options: ["Fichte", "Kiefer", "Tanne", "Douglasie"],
+      explanation: "Die Kiefer (Pinus sylvestris) lässt sich sicher durch dickwandige Epithelzellen und große Fenstertüpfel identifizieren."
+    },
+    {
+      id: 2,
+      category: "Nadelholz-Bestimmung",
+      answer: "Tanne",
+      clues: [
+        "Ich besitze keine Harzkanäle.",
+        "Ich habe keine schraubenartigen Verdickungen.",
+        "Meine Kreuzungsfeldtüpfel sind taxodioid.",
+        "Meine Holzstrahlen sind meist homogen."
+      ],
+      options: ["Tanne", "Lärche", "Eibe", "Fichte"],
+      explanation: "Die Tanne (Abies) hat keine Harzkanäle. Ihre taxodioiden Tüpfel sind ein entscheidendes Merkmal zur Abgrenzung."
+    },
+    {
+      id: 3,
+      category: "Nadelholz-Bestimmung",
+      answer: "Lärche",
+      clues: [
+        "Ich besitze Harzkanäle.",
+        "Meine Epithelzellen sind dünnwandig.",
+        "Meine Kreuzungsfeldtüpfel sind piceoid.",
+        "Charakteristisch für mich sind die Zwillingstüpfel."
+      ],
+      options: ["Kiefer", "Douglasie", "Lärche", "Wacholder"],
+      explanation: "Die Lärche (Larix) ähnelt der Fichte, unterscheidet sich aber im Mikroskop oft durch die markanten Zwillingstüpfel."
+    },
+    {
+      id: 4,
+      category: "Nadelholz-Bestimmung",
+      answer: "Eibe",
+      clues: [
+        "Ich besitze keine Harzkanäle.",
+        "Meine Kreuzungsfeldtüpfel sind cupressoid.",
+        "Ich weise deutliche schraubenartige Verdickungen auf.",
+        "Mein Holz ist sehr dicht und hart."
+      ],
+      options: ["Wacholder", "Eibe", "Tanne", "Strobe"],
+      explanation: "Die Eibe (Taxus) ist leicht an den Spiralverdickungen (schraubenartig) in Kombination mit fehlenden Harzkanälen zu erkennen."
+    },
+    {
+      id: 5,
+      category: "Nadelholz-Bestimmung",
+      answer: "Douglasie",
+      clues: [
+        "Ich besitze Harzkanäle mit dünnwandigen Epithelzellen.",
+        "Meine Kreuzungsfeldtüpfel sind piceoid.",
+        "Anders als die Fichte besitze ich schraubenartige Verdickungen.",
+        "Meine Spiralen sind oft feiner als bei der Eibe."
+      ],
+      options: ["Fichte", "Douglasie", "Kiefer", "Lärche"],
+      explanation: "Die Douglasie (Pseudotsuga) wird oft mit der Fichte verwechselt, lässt sich aber durch die Spiralverdickungen abgrenzen."
+    }
+  ];
+
+  // Helper to get max potential points for current state
+  const calculatePotentialPoints = () => {
+    const maxPoints = 200;
+    const penaltyPerClue = 40;
+    return Math.max(40, maxPoints - ((revealedClues - 1) * penaltyPerClue));
+  };
+
+  const handleRevealClue = () => {
+    if (revealedClues < challenges[currentRoundIndex].clues.length) {
+      setRevealedClues(revealedClues + 1);
+    }
+  };
+
+  const handleGuess = (option) => {
+    if (roundStatus !== 'active') return;
+
+    setSelectedOption(option);
+    const correct = option === challenges[currentRoundIndex].answer;
+
+    if (correct) {
+      const points = calculatePotentialPoints() + (streak * 20);
+      setScore(score + points);
+      setStreak(streak + 1);
+      setXpGained(points);
+      setRoundStatus('success');
+    } else {
+      setLives(lives - 1);
+      setStreak(0);
+      setXpGained(0);
+      setRoundStatus('failure');
+      // Reveal all clues on failure so user learns
+      setRevealedClues(challenges[currentRoundIndex].clues.length);
+    }
+
+    if (!correct && lives - 1 <= 0) {
+      setTimeout(() => setGameState('gameover'), 2500);
+    }
+  };
+
+  const nextRound = () => {
+    setRoundStatus('active');
+    setSelectedOption(null);
+    setRevealedClues(1);
+    if (currentRoundIndex < challenges.length - 1) {
+      setCurrentRoundIndex(currentRoundIndex + 1);
+    } else {
+      setGameState('completed');
+    }
+  };
+
+  const restartGame = () => {
+    setScore(0);
+    setStreak(0);
+    setLives(3);
+    setCurrentRoundIndex(0);
+    setRoundStatus('active');
+    setSelectedOption(null);
+    setRevealedClues(1);
+    setGameState('start');
+  };
+
+  // --- Screens ---
+
+  const StartScreen = () => (
+    <div className="flex flex-col items-center justify-center h-full p-8 text-center space-y-6 animate-fade-in">
+      <div className="bg-orange-100 p-6 rounded-full mb-4 ring-8 ring-orange-50">
+        <TreePine size={64} className="text-orange-600" />
+      </div>
+      <h1 className="text-3xl font-black text-gray-800 tracking-tight">Pinpoint: Holzarten</h1>
+      <p className="text-gray-600 max-w-xs text-lg leading-relaxed">
+        Bestimmen Sie das Nadelholz anhand mikroskopischer Merkmale.
+      </p>
+      
+      <div className="grid grid-cols-2 gap-3 w-full max-w-xs mt-4">
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-orange-100 flex flex-col items-center">
+           <Lightbulb className="w-6 h-6 text-yellow-500 mb-2" />
+           <span className="text-xs font-bold text-gray-400 uppercase">Strategie</span>
+           <span className="text-sm font-semibold text-gray-700">Merkmale</span>
+        </div>
+        <div className="bg-white p-4 rounded-2xl shadow-sm border border-orange-100 flex flex-col items-center">
+           <Trophy className="w-6 h-6 text-orange-500 mb-2" />
+           <span className="text-xs font-bold text-gray-400 uppercase">Ziel</span>
+           <span className="text-sm font-semibold text-gray-700">Max XP</span>
+        </div>
+      </div>
+
+      <button 
+        onClick={() => setGameState('playing')}
+        className="mt-8 px-10 py-4 bg-orange-600 text-white rounded-2xl font-bold text-xl hover:bg-orange-700 transform hover:scale-105 transition-all shadow-xl hover:shadow-orange-200 flex items-center"
+      >
+        Quiz Starten <ArrowRight className="ml-2" />
+      </button>
+    </div>
+  );
+
+  const GameOverScreen = () => (
+    <div className="flex flex-col items-center justify-center h-full p-8 text-center animate-fade-in">
+      <div className="bg-red-100 p-6 rounded-full mb-6">
+        <XCircle size={64} className="text-red-500" />
+      </div>
+      <h2 className="text-3xl font-bold text-gray-800 mb-2">Bestimmung gescheitert</h2>
+      <p className="text-gray-600 mb-8">Achten Sie beim nächsten Mal genauer auf die Tüpfelformen.</p>
+      <div className="bg-gray-100 px-8 py-4 rounded-2xl mb-8">
+        <span className="block text-xs text-gray-500 uppercase font-bold">Endstand</span>
+        <span className="text-3xl font-black text-gray-800">{score} XP</span>
+      </div>
+      <button 
+        onClick={restartGame}
+        className="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors flex items-center shadow-lg"
+      >
+        <RefreshCw className="mr-2" size={20} /> Neustarten
+      </button>
+    </div>
+  );
+
+  const CompletedScreen = () => (
+    <div className="flex flex-col items-center justify-center h-full p-8 text-center animate-fade-in">
+      <div className="bg-yellow-100 p-6 rounded-full mb-6 animate-pulse">
+        <Trophy size={64} className="text-yellow-600" />
+      </div>
+      <h2 className="text-2xl font-bold text-gray-800 mb-2">Holzanatomie-Experte!</h2>
+      <p className="text-gray-600 mb-8">Sie haben alle Holzarten korrekt bestimmt.</p>
+      
+      <div className="bg-orange-50 p-8 rounded-3xl border border-orange-100 mb-8 w-full max-w-xs">
+        <div className="text-xs text-orange-500 uppercase font-bold tracking-widest mb-2">Gesamtpunktzahl</div>
+        <div className="text-5xl font-black text-orange-900">{score}</div>
+        <div className="text-orange-400 font-medium mt-2">XP gesammelt</div>
+      </div>
+
+      <button 
+        onClick={restartGame}
+        className="px-8 py-3 bg-orange-600 text-white rounded-xl font-bold hover:bg-orange-700 transition-colors flex items-center shadow-lg shadow-orange-200"
+      >
+        <RefreshCw className="mr-2" size={20} /> Erneut spielen
+      </button>
+    </div>
+  );
+
+  // --- Main Game Screen ---
+
+  return (
+    // Outer container: Full viewport, centers content on desktop, full screen on mobile
+    <div className="w-full h-screen bg-slate-100 flex items-center justify-center font-sans md:p-4 selection:bg-orange-100 overflow-hidden">
+      
+      {/* App Container: 
+          - Mobile: w-full h-full (fills screen), no border radius
+          - Desktop (md+): max-w-md (Smartphone proportions), rounded corners, shadow
+      */}
+      <div className="w-full h-full md:max-w-md md:h-[90vh] md:max-h-[850px] bg-white md:rounded-[2.5rem] md:shadow-2xl md:border-8 md:border-white overflow-hidden flex flex-col relative">
+        
+        {/* Header Bar */}
+        {gameState === 'playing' && (
+          <div className="bg-white/90 backdrop-blur-md border-b border-orange-100 p-4 flex justify-between items-center sticky top-0 z-20">
+            <div className="flex items-center space-x-2">
+               <div className="bg-orange-50 p-2 rounded-lg">
+                  <Microscope className="w-5 h-5 text-orange-600" />
+               </div>
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Level {currentRoundIndex + 1}/{challenges.length}</span>
+                 <span className="text-xs font-bold text-gray-800 truncate max-w-[100px]">{challenges[currentRoundIndex].category}</span>
+               </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {/* Compact stats for mobile view */}
+              <div className="flex items-center bg-slate-50 px-2 py-1 rounded-full border border-slate-100">
+                <Heart className="w-3 h-3 text-red-500 fill-current mr-1" />
+                <span className="font-bold text-xs text-slate-700">{lives}</span>
+              </div>
+              <div className="bg-orange-600 text-white px-3 py-1 rounded-full font-bold text-xs shadow-md shadow-orange-200">
+                {score} XP
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content Area */}
+        <div className="flex-1 flex flex-col relative bg-slate-50/50 overflow-y-auto">
+          {gameState === 'start' && <StartScreen />}
+          {gameState === 'gameover' && <GameOverScreen />}
+          {gameState === 'completed' && <CompletedScreen />}
+          
+          {gameState === 'playing' && (
+            <div className="p-4 flex flex-col min-h-full animate-fade-in w-full">
+              
+              {/* Clue Area - Pinpoint Style */}
+              <div className="flex-1 mb-6">
+                <div className="flex justify-between items-end mb-4">
+                  <h3 className="text-md font-bold text-slate-700 flex items-center">
+                    <Search className="w-4 h-4 mr-2 text-orange-500" />
+                    Merkmale
+                  </h3>
+                  <div className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded">
+                     Max: {calculatePotentialPoints()} Pkt
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {challenges[currentRoundIndex].clues.map((clue, index) => {
+                    const isRevealed = index < revealedClues;
+                    return (
+                      <div 
+                        key={index}
+                        className={`
+                          p-3 rounded-xl border-l-4 transition-all duration-500 ease-out flex items-center
+                          ${isRevealed 
+                            ? 'bg-white border-orange-500 shadow-sm opacity-100 translate-x-0' 
+                            : 'bg-slate-100 border-slate-300 opacity-40 translate-x-4 blur-[1px]' // Hidden state
+                          }
+                        `}
+                      >
+                         <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 font-bold text-xs flex-shrink-0 ${isRevealed ? 'bg-orange-100 text-orange-600' : 'bg-slate-200 text-slate-400'}`}>
+                           {index + 1}
+                         </div>
+                         <p className={`text-sm md:text-base font-medium ${isRevealed ? 'text-slate-700' : 'text-slate-400 select-none'}`}>
+                           {isRevealed ? clue : "Verschlüsselt..."}
+                         </p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Reveal Button */}
+                {revealedClues < challenges[currentRoundIndex].clues.length && roundStatus === 'active' && (
+                  <button 
+                    onClick={handleRevealClue}
+                    className="mt-6 w-full text-sm font-bold text-orange-600 bg-orange-50 border border-orange-100 hover:bg-orange-100 px-4 py-3 rounded-xl transition-colors flex justify-center items-center"
+                  >
+                    <Lightbulb className="w-4 h-4 mr-2" />
+                    Tipp anzeigen (-40 Pkt)
+                  </button>
+                )}
+              </div>
+
+              {/* Options Grid */}
+              <div className="mt-auto pt-4 border-t border-slate-200 bg-slate-50/50 pb-6">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center">Welches Holz ist es?</h3>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  {challenges[currentRoundIndex].options.map((option) => {
+                    const isSelected = selectedOption === option;
+                    const isCorrect = option === challenges[currentRoundIndex].answer;
+                    
+                    let btnClass = "bg-white border-slate-200 hover:border-orange-300 hover:shadow-md text-slate-700"; // default
+                    
+                    if (roundStatus !== 'active') {
+                       if (isCorrect) btnClass = "bg-green-100 border-green-500 text-green-800 ring-1 ring-green-500";
+                       else if (isSelected && !isCorrect) btnClass = "bg-red-50 border-red-300 text-red-800 opacity-60";
+                       else btnClass = "bg-slate-50 border-slate-100 text-slate-400 opacity-50";
+                    }
+
+                    return (
+                      <button
+                        key={option}
+                        onClick={() => handleGuess(option)}
+                        disabled={roundStatus !== 'active'}
+                        className={`
+                          relative p-3 rounded-xl border-2 font-bold text-sm transition-all duration-200 text-left min-h-[60px] flex items-center
+                          ${btnClass}
+                        `}
+                      >
+                        {option}
+                        {roundStatus === 'success' && isCorrect && <CheckCircle className="absolute right-2 top-2 text-green-600 w-4 h-4" />}
+                        {roundStatus === 'failure' && isSelected && !isCorrect && <XCircle className="absolute right-2 top-2 text-red-500 w-4 h-4" />}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* Feedback / Next Button */}
+                {roundStatus !== 'active' && (
+                  <div className="mt-4 animate-slide-up relative z-30">
+                    <div className={`p-4 rounded-xl mb-4 text-sm ${roundStatus === 'success' ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
+                      <p className="text-slate-800 leading-relaxed">
+                        <span className="font-bold mr-2">{roundStatus === 'success' ? 'Korrekt!' : 'Leider falsch.'}</span>
+                        {challenges[currentRoundIndex].explanation}
+                      </p>
+                    </div>
+                    <button 
+                      onClick={nextRound}
+                      className={`w-full py-4 rounded-xl font-bold text-white shadow-lg transition-all hover:scale-[1.01] flex justify-center items-center text-lg
+                        ${roundStatus === 'success' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-slate-800 hover:bg-slate-900'}`}
+                    >
+                      {currentRoundIndex < challenges.length - 1 ? 'Nächste Probe' : 'Ergebnis ansehen'}
+                      <ArrowRight className="ml-2 w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.98); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      `}</style>
+    </div>
+  );
+};
+
+export default GamifiedMicroscopyApp;
