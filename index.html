@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Welches Holz bin ich?</title>
+    <title>Welches Holz bin ich? - Level 2</title>
     
-    <!-- 1. Tailwind CSS für das Design laden -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 2. React und ReactDOM laden -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     
-    <!-- 3. Babel laden (damit der Browser JSX versteht) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -33,14 +30,12 @@
 </head>
 <body class="bg-slate-100 text-slate-900 h-[100dvh] w-screen overflow-hidden">
     
-    <!-- Hier wird die App "eingehängt" -->
     <div id="root"></div>
 
-    <!-- Hier beginnt der eigentliche React-Code -->
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- ICONS (Inline definiert, damit keine externen Abhängigkeiten nötig sind) ---
+        // --- ICONS (Inline definiert) ---
         const IconBase = ({ d, color = "currentColor", size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 {d}
@@ -51,16 +46,14 @@
         const CheckCircle = (p) => <IconBase {...p} d={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />;
         const XCircle = (p) => <IconBase {...p} d={<><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></>} />;
         const Trophy = (p) => <IconBase {...p} d={<><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 1 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></>} />;
-        const Flame = (p) => <IconBase {...p} d={<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-2.24-4.039-3.043-5.804A6 6 0 0 0 2.5 8 5.48 5.48 0 0 0 8 13.5v1c0 .5.33 1 .5 1a2.5 2.5 0 0 0 2.5-2.5V8h1v5a4 4 0 0 0 4 4 3 3 0 0 0 3-3c0-3.33-4-5-4-9 0 2.5-3 5-3 7.5a2.5 2.5 0 0 1-2.5 2.5z"/>} />;
         const Heart = (p) => <IconBase {...p} fill={p.fill ? "currentColor" : "none"} d={<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>} />;
         const ArrowRight = (p) => <IconBase {...p} d={<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />;
         const RefreshCw = (p) => <IconBase {...p} d={<><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></>} />;
         const Search = (p) => <IconBase {...p} d={<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>} />;
         const Lightbulb = (p) => <IconBase {...p} d={<><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2.4 1.5-3.8 0-3.2-2.8-6-6-6S6 4.8 6 8c0 1.4.5 2.8 1.5 3.8.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></>} />;
-        const Target = (p) => <IconBase {...p} d={<><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>} />;
-        const TreePine = (p) => <IconBase {...p} d={<><path d="m17 14 3 3.3a1 1 0 0 1-.7 1.7H4.7a1 1 0 0 1-.7-1.7L7 14h-.3a1 1 0 0 1-.9-1.5l2.9-4H8.6a1 1 0 0 1-.8-1.5l5.5-7.5a1 1 0 0 1 1.6 0l5.5 7.5a1 1 0 0 1-.8 1.5H18.2l2.9 4a1 1 0 0 1-.9 1.5H17Z"/><path d="M12 22v-3"/></>} />;
+        const HouseIcon = (p) => <IconBase {...p} d={<><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></>} />;
         
-        // Fingerabdruck / Holzmaserung (Organische, fließende Linien basierend auf dem Bild)
+        // Fingerabdruck / Holzmaserung (Das Icon für den Home Button)
         const WoodFingerprint = (p) => <IconBase {...p} d={<>
             <path d="M5 20 C 10 18, 10 6, 14 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.5" />
             <path d="M9 21 C 14 19, 14 5, 18 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7" />
@@ -69,18 +62,11 @@
             <path d="M15 22 C 19 20, 19 12, 22 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.5" />
         </>} />;
 
-        // Haus-Icon (Linien-Stil)
-        const HouseIcon = (p) => <IconBase {...p} d={<>
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </>} />;
-
 
         // --- HAUPTANWENDUNG ---
         const GamifiedMicroscopyApp = () => {
           
           // --- KONFIGURATION ---
-          // Hier deinen gewünschten Link für den Home-Button eintragen:
           const homeLink = "https://aufdemholzweg.github.io/Lernwelt-Holz/"; 
 
           // Game State
@@ -96,13 +82,10 @@
           const [selectedOption, setSelectedOption] = useState(null);
           const [xpGained, setXpGained] = useState(0);
 
-          // Ref für den Scroll-Container
           const scrollContainerRef = useRef(null);
 
-          // Effekt für automatisches Scrollen nach OBEN bei Rundenbeginn
           useEffect(() => {
             if (scrollContainerRef.current) {
-                // Scrollt den Container sofort nach oben, wenn sich die Runde ändert
                 scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }, [currentRoundIndex, gameState]);
@@ -235,7 +218,6 @@
             setGameState('start');
           };
 
-          // Zum Spielstart zurückkehren (Abbrechen)
           const goToStart = () => {
             setGameState('start');
             setCurrentRoundIndex(0);
@@ -246,18 +228,23 @@
             setRoundStatus('active');
           };
 
+          // --- GEMEINSAMER HOME-BUTTON (Holzquartett-Style) ---
+          const HomeButton = ({ customClass }) => (
+             <a 
+                href={homeLink}
+                className={`absolute top-4 right-4 z-50 w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-md border-2 border-white/20 hover:scale-105 transition-transform ${customClass}`}
+                aria-label="Zurück zum Hauptmenü"
+             >
+                <WoodFingerprint size={24} />
+             </a>
+          );
+
           // --- SCREENS ---
 
           const StartScreen = () => (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center space-y-6 animate-fade-in relative">
-              {/* BUTTON 1: Zurück zum Launcher (Holztechnik-Symbol / Fingerabdruck) */}
-              <a 
-                href={homeLink}
-                className="absolute top-4 left-4 w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white shadow-lg hover:scale-105 transition-transform z-50 border-2 border-white/20"
-                aria-label="Zurück zum Hauptmenü"
-              >
-                <WoodFingerprint size={24} />
-              </a>
+              {/* BUTTON: Oben Rechts im Holzquartett-Style */}
+              <HomeButton />
 
               <div className="bg-orange-100 p-6 rounded-full mb-4 ring-8 ring-orange-50">
                 <Microscope size={64} className="text-orange-600" />
@@ -291,19 +278,12 @@
 
           const GameOverScreen = () => (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center animate-fade-in relative">
-              {/* BUTTON: Zurück zum Launcher (Holztechnik-Symbol) */}
-              <a 
-                href={homeLink}
-                className="absolute top-4 left-4 w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white shadow-lg hover:scale-105 transition-transform z-50 border-2 border-white/20"
-                aria-label="Zurück zum Hauptmenü"
-              >
-                <WoodFingerprint size={24} />
-              </a>
+              <HomeButton />
 
               <div className="bg-red-100 p-6 rounded-full mb-6">
                 <XCircle size={64} className="text-red-500" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">Leider falsch... beim nächsten Mal klappt's bestimmt!"</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">Leider falsch...</h2>
               <p className="text-gray-600 mb-8">Achten Sie beim nächsten Mal genauer auf die Tüpfelformen.</p>
               <div className="bg-gray-100 px-8 py-4 rounded-2xl mb-8">
                 <span className="block text-xs text-gray-500 uppercase font-bold">Endstand</span>
@@ -320,14 +300,7 @@
 
           const CompletedScreen = () => (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center animate-fade-in relative">
-              {/* BUTTON: Zurück zum Launcher (Holztechnik-Symbol) */}
-              <a 
-                href={homeLink}
-                className="absolute top-4 left-4 w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white shadow-lg hover:scale-105 transition-transform z-50 border-2 border-white/20"
-                aria-label="Zurück zum Hauptmenü"
-              >
-                <WoodFingerprint size={24} />
-              </a>
+              <HomeButton />
 
               <div className="bg-yellow-100 p-6 rounded-full mb-6 animate-pulse">
                 <Trophy size={64} className="text-yellow-600" />
@@ -360,10 +333,10 @@
                 {gameState === 'playing' && (
                   <div className="bg-white/90 backdrop-blur-md border-b border-orange-100 p-3 flex justify-between items-center sticky top-0 z-20">
                     <div className="flex items-center space-x-2">
-                       {/* Linke Seite im Spiel: Haus-Icon (Zurück zum Startscreen des Spiels) */}
+                       {/* Linke Seite im Spiel: Haus-Icon (Spiel abbrechen) - Angepasst an Holzquartett Style */}
                        <button 
                           onClick={goToStart}
-                          className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white shadow-md hover:scale-105 transition-transform border-2 border-white/20 mr-3 shrink-0"
+                          className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white shadow-md hover:scale-105 transition-transform border-2 border-white/20 mr-3 shrink-0"
                           aria-label="Spiel abbrechen / Zur Startseite"
                         >
                           <HouseIcon size={20} />
